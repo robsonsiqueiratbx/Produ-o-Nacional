@@ -15,14 +15,16 @@
         // IMPORTANTE: Preencha os dados abaixo com o que está no seu 
         // Console do Firebase (Configurações do Projeto > Seus Aplicativos)
         // =============================================================
-        const config = {
-            apiKey: "", 
-            authDomain: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: ""
-        };
+        const config =
+            {
+            apiKey: "AIzaSyBqRg7MU49EiDsYqXhwuP3VWg6YpBWLg2c",
+            authDomain: "checklist-producao-nacional.firebaseapp.com",
+            projectId: "checklist-producao-nacional",
+            storageBucket: "checklist-producao-nacional.firebasestorage.app",
+            messagingSenderId: "207117001192",
+            appId: "1:207117001192:web:efb2396fd42abbda48c45d",
+            measurementId: "G-SJEKJTR3E8"
+            };
 
         const isPreviewEnv = typeof __firebase_config !== 'undefined';
         const firebaseConfig = (config.apiKey && config.apiKey !== "") ? config : (isPreviewEnv ? JSON.parse(__firebase_config) : null);
