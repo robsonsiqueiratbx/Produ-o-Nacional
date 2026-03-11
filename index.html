@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tubrax | CheckList de Processo Produção Nacional</title>
+    <title>TBX | CheckList de Processo Produção Nacional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
      <script type="module">
@@ -24,13 +24,12 @@
             appId: ""
         };
 
-        // Lógica de detecção de ambiente
         const isPreviewEnv = typeof __firebase_config !== 'undefined';
         const firebaseConfig = (config.apiKey && config.apiKey !== "") ? config : (isPreviewEnv ? JSON.parse(__firebase_config) : null);
-        const finalAppId = typeof __app_id !== 'undefined' ? __app_id : 'tubrax-producao-nacional';
+        const finalAppId = typeof __app_id !== 'undefined' ? __app_id : 'tbx-producao-nacional';
 
         if (!firebaseConfig) {
-            window.firebaseError = "ERRO DE CONFIGURAÇÃO: As chaves do Firebase não foram encontradas no código. Se você subiu para o GitHub, precisa preencher o objeto 'config' no início do arquivo index.html.";
+            window.firebaseError = "ERRO DE CONFIGURAÇÃO: As chaves do Firebase não foram encontradas. Se estiver no GitHub, preencha o objeto 'config' no código.";
         }
 
         let app, auth, db;
@@ -54,8 +53,7 @@
                         return userCredential.user;
                     }
                 } catch (error) {
-                    console.error("Erro de autenticação Firebase:", error);
-                    // Retorna o erro detalhado para o alerta
+                    console.error("Erro Firebase Auth:", error);
                     return { error: error.code || error.message };
                 }
             })();
@@ -65,12 +63,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
         :root { --navy: #002147; --turquoise: #00CED1; --white: #FFFFFF; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .text-navy { color: var(--navy); }
         .bg-navy { background-color: var(--navy); }
         .text-turquoise { color: var(--turquoise); }
-        .bg-turquoise { background-color: var(--turquoise); }
         .progress-transition { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .image-preview { width: 90px; height: 90px; object-fit: cover; border-radius: 6px; border: 2px solid var(--turquoise); }
+        .image-preview { width: 90px; height: 90px; object-fit: cover; border-radius: 8px; border: 2px solid var(--turquoise); cursor: pointer; }
         .card-accent { border-left: 5px solid var(--navy); }
         #success-modal { display: none; position: fixed; inset: 0; background: rgba(0, 33, 71, 0.8); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
         @media print { .no-print { display: none !important; } body { background: white; } }
@@ -82,16 +78,16 @@
         <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border-t-8 border-turquoise">
             <div id="modal-loading" class="mb-4">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-navy mx-auto"></div>
-                <p class="mt-2 text-xs font-bold text-navy uppercase tracking-widest">Sincronizando com Grupo TBX...</p>
+                <p class="mt-2 text-xs font-bold text-navy uppercase tracking-widest text-center">Enviando para Nuvem TBX...</p>
             </div>
-            <div id="modal-finished" class="hidden">
+            <div id="modal-finished" class="hidden text-center">
                 <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-black text-navy uppercase mb-2">Registro Concluído!</h3>
-                <p class="text-slate-600 text-sm mb-6">Enviado com sucesso.</p>
+                <h3 class="text-xl font-black text-navy uppercase mb-2">Enviado!</h3>
+                <p class="text-slate-600 text-sm mb-6 text-center">Checklist de produção TBX registrado.</p>
                 <button onclick="closeModal()" class="w-full py-3 bg-navy text-white font-bold rounded-lg hover:bg-slate-800 transition-all">VOLTAR</button>
             </div>
         </div>
@@ -103,7 +99,7 @@
         <header class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-slate-200">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
-                    <div class="bg-navy p-3 rounded-lg"><span class="text-white font-black text-xl italic">TUBRAX</span></div>
+                    <div class="bg-navy p-3 rounded-lg"><span class="text-white font-black text-xl italic">TBX</span></div>
                     <div>
                         <h1 class="text-xl font-black text-navy uppercase tracking-widest leading-tight">CheckList de Processo<br><span class="text-turquoise">Produção Nacional</span></h1>
                         <p class="text-slate-500 text-xs font-bold mt-1" id="current-date"></p>
@@ -122,7 +118,7 @@
 
             <div class="mt-8 pt-6 border-t border-slate-100">
                 <div class="flex justify-between items-end mb-3">
-                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Conclusão da Verificação</span>
+                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Status da Verificação</span>
                     <span class="text-lg font-black text-turquoise" id="progress-text">0%</span>
                 </div>
                 <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
@@ -140,11 +136,11 @@
                 </svg>
                 Enviar
             </button>
-            <p id="finish-error" class="text-center text-[10px] text-red-500 font-bold uppercase mt-4 hidden">Atenção: Informe o nome do operador e valide pelo menos um item com foto para enviar.</p>
+            <p id="finish-error" class="text-center text-[10px] text-red-500 font-bold uppercase mt-4 hidden">Atenção: Informe o nome e valide pelo menos um item com foto para enviar.</p>
         </div>
 
         <footer class="mt-12 text-center border-t border-slate-200 pt-8 pb-12">
-            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.5em]">Tubrax - Grupo TBX</p>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.5em]">TBX - Grupo TBX</p>
         </footer>
     </div>
 
@@ -188,7 +184,6 @@
                     <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden card-accent">
                         <div class="bg-navy px-6 py-4 flex justify-between items-center">
                             <h2 class="font-black text-white text-[10px] uppercase tracking-widest">${section.title}</h2>
-                            <span class="text-turquoise text-[10px] font-black uppercase">Obrigatório Foto</span>
                         </div>
                         <div class="p-6 space-y-6">
                             ${section.items.map(item => {
@@ -207,17 +202,20 @@
                                             <span class="text-sm font-bold text-navy block mb-2 transition-all ${isChecked ? 'opacity-40 line-through' : ''}">${item.text}</span>
                                             <div class="flex items-center gap-3 no-print">
                                                 <label for="file_${item.id}" class="px-3 py-1.5 bg-slate-100 rounded text-[9px] font-black uppercase text-slate-600 cursor-pointer hover:bg-slate-200 transition-colors">
-                                                    ${savedPhoto ? 'Alterar' : 'Anexar Foto'}
+                                                    ${savedPhoto ? 'Trocar Foto' : 'Anexar Foto'}
                                                 </label>
                                                 <input type="file" id="file_${item.id}" accept="image/*" capture="environment" class="hidden" onchange="handleFileUpload(this, '${item.id}')">
                                                 <span class="text-[8px] font-black uppercase tracking-widest ${!isNameFilled ? 'text-red-400' : !savedPhoto ? 'text-amber-500' : 'text-green-500'}">
-                                                    ${!isNameFilled ? 'Nome Requerido' : !savedPhoto ? 'Falta Foto' : 'Pronto'}
+                                                    ${!isNameFilled ? 'Nome Requerido' : !savedPhoto ? 'Falta Foto' : 'Validado'}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                     <div id="preview_container_${item.id}" class="${savedPhoto ? 'flex' : 'hidden'} justify-end">
-                                        <img src="${savedPhoto || ''}" id="img_${item.id}" class="image-preview shadow-lg" alt="Evidência">
+                                        <img src="${savedPhoto || ''}" id="img_${item.id}" 
+                                             class="image-preview shadow-lg hover:scale-105 transition-transform" 
+                                             alt="Evidência"
+                                             onclick="document.getElementById('file_${item.id}').click()">
                                     </div>
                                 </div><hr class="border-slate-50 last:hidden">`}).join('')}
                         </div>
@@ -242,6 +240,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     const base64Data = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    // Salva a nova foto (isso sobrescreve a anterior automaticamente)
                     localStorage.setItem(`photo_${id}`, base64Data);
                     renderChecklist(); 
                     updateProgress();
@@ -269,7 +269,6 @@
         }
 
         async function finishChecklist() {
-            // Verifica se o Firebase foi inicializado
             if (window.firebaseError) {
                 alert(window.firebaseError);
                 return;
@@ -286,11 +285,10 @@
 
                 const userResponse = await window.authPromise;
                 
-                // Se houver erro na autenticação (objeto retornado tem .error)
                 if (!userResponse || userResponse.error) {
                     const errorMsg = userResponse?.error || "Desconhecido";
                     document.getElementById('modal-loading').classList.add('hidden');
-                    alert(`ERRO DE CONEXÃO: ${errorMsg}\n\nVerifique se o seu domínio está autorizado no Firebase e se o Login Anônimo está ativado.`);
+                    alert(`ERRO DE CONEXÃO: ${errorMsg}\n\nVerifique domínios autorizados e login anônimo no Firebase.`);
                     closeModal();
                     return;
                 }
@@ -298,7 +296,7 @@
                 const submissionId = `sub_nacional_${Date.now()}`;
                 const payload = {
                     operator: operatorName,
-                    type: "Produção Nacional",
+                    type: "Produção Nacional TBX",
                     completion: `${percentage}%`,
                     timestamp: window.firestoreUtils.serverTimestamp(),
                     items: {}
@@ -325,7 +323,7 @@
                 } catch (e) {
                     console.error("Erro ao salvar:", e);
                     document.getElementById('modal-loading').classList.add('hidden');
-                    alert(`Erro de Permissão: ${e.message}\nVerifique se as Regras do Firestore permitem gravação.`);
+                    alert(`Erro de Permissão: ${e.message}`);
                     closeModal();
                 }
             } else {
